@@ -3,33 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hello Kuo baopay</title>
+  <title>Hello Kuo BaoPay</title>
 
   <style>
     :root{
+      /* Dark screens (questions) */
       --bg:#05060a;
       --bg2:#090b12;
       --text:#eef0f6;
       --muted:rgba(238,240,246,.72);
       --hairline:rgba(255,255,255,.10);
+
       --pink:#ff6fa3;
       --pink2:#ffb3cd;
+
       --shadow: 0 24px 80px rgba(0,0,0,.55);
       --radius: 26px;
 
-      /* old money + apple body */
-      --serif: ui-serif, "New York", "Iowan Old Style", "Palatino", "Baskerville", "Times New Roman", serif;
-      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
-
-      /* homepage palette */
+      /* Hero (white) palette */
       --paper:#fbfaf7;
       --ink:#241a14;      /* deep brownish-black */
       --ink2:rgba(36,26,20,.72);
       --line:rgba(36,26,20,.12);
+
+      /* Typography */
+      --serif: ui-serif, "New York", "Iowan Old Style", "Palatino", "Baskerville", "Times New Roman", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
     }
 
     *{ box-sizing:border-box; }
     html, body{ height:100%; }
+
     body{
       margin:0;
       color:var(--text);
@@ -41,7 +45,7 @@
       overflow:hidden;
     }
 
-    /* subtle star speckles */
+    /* subtle star speckles (for dark screens only; hero will hide it) */
     .stars:before{
       content:"";
       position:fixed; inset:0;
@@ -54,7 +58,7 @@
       pointer-events:none;
     }
 
-    /* watermark hearts (global) */
+    /* Floating watermark hearts (SVG line heart) */
     .wm-hearts{
       position:fixed; inset:0;
       pointer-events:none;
@@ -65,13 +69,14 @@
       position:absolute;
       transform: translateY(110vh);
       animation: drift 12s linear infinite;
-      filter: blur(.2px);
+      filter: blur(.15px);
+      opacity: 1;
     }
     @keyframes drift{
-      0%   { transform: translateY(110vh) translateX(0) scale(1); opacity: .0; }
-      10%  { opacity: .28; }
-      50%  { opacity: .20; }
-      90%  { opacity: .10; }
+      0%   { transform: translateY(110vh) translateX(0) scale(1); opacity: 0; }
+      10%  { opacity: .32; }
+      50%  { opacity: .22; }
+      90%  { opacity: .12; }
       100% { transform: translateY(-30vh) translateX(60px) scale(1.25); opacity: 0; }
     }
 
@@ -97,77 +102,34 @@
       backdrop-filter: blur(10px);
     }
 
-    /* Top bar (default dark for question screens) */
-    .topbar{
-      position:absolute; inset:0 0 auto 0;
-      height:64px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 0 18px;
-      border-bottom: 1px solid var(--hairline);
-      background: linear-gradient(180deg, rgba(8,10,16,.88), rgba(8,10,16,.40));
-      z-index:20;
-      user-select:none;
-      color: rgba(255,255,255,.92);
-    }
-    .brand{
-      display:flex; gap:10px; align-items:center;
-      font-weight:600;
-      letter-spacing:.2px;
-      opacity:.92;
-    }
-    .dot{
-      width:10px;height:10px;border-radius:999px;
-      background: linear-gradient(135deg, var(--pink), var(--pink2));
-      box-shadow: 0 10px 20px rgba(255,111,163,.25);
-    }
-    .top-right{
-      display:flex; gap:10px; align-items:center;
-      opacity:.85;
-      font-size:13px;
-    }
-    .pill{
-      border:1px solid var(--hairline);
-      border-radius:999px;
-      padding: 8px 12px;
-      background: rgba(255,255,255,.03);
-    }
-
     /* Screens */
     .screen{
       position:absolute;
-      inset:64px 0 0 0;
+      inset:0;               /* topbar removed */
       padding: 34px 28px 22px;
       display:none;
       z-index:15;
     }
     .screen.active{ display:block; }
 
-    /* ---------- HERO (WHITE Apple-style) ---------- */
+    /* ===========================
+       HERO (WHITE, CLEAN)
+       =========================== */
     #screen-hero{
       background: var(--paper);
       color: var(--ink);
-    }
-    /* Make topbar light ONLY on hero */
-    body.hero-mode .topbar{
-      color: var(--ink);
-      border-bottom: 1px solid var(--line);
-      background: rgba(251,250,247,.78);
-    }
-    body.hero-mode .pill{
-      border: 1px solid var(--line);
-      background: rgba(36,26,20,.03);
-      color: var(--ink);
-    }
-    body.hero-mode .brand{ opacity:.95; }
-    body.hero-mode .dot{
-      box-shadow: 0 10px 20px rgba(255,111,163,.18);
+      padding: 26px 28px 22px;
     }
 
-    /* Reduce watermark hearts visibility on white hero */
+    /* Make hero full-page white (outside card too) */
+    body.hero-mode{
+      background: var(--paper) !important;
+    }
+    body.hero-mode.stars:before{
+      opacity: 0 !important;
+    }
     body.hero-mode .wm-hearts span{
-      color: rgba(255,111,163,.06) !important;
+      opacity: .55;
     }
 
     .hero{
@@ -175,67 +137,73 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      text-align:left;
-      padding: 12px 10px 46px;
+      padding: 10px 10px 46px;
     }
+
     .hero-inner{
       width: min(860px, 96%);
       display:grid;
-      grid-template-columns: 1fr auto;
-      gap: 24px;
+      grid-template-columns: 1fr;
+      gap: 18px;
       align-items:center;
     }
-    @media (max-width: 760px){
-      .hero-inner{ grid-template-columns: 1fr; text-align:center; }
-      .hero-actions{ justify-content:center; }
-    }
 
-    .hello-rotator{
+    /* Big rotator (H1 level) */
+    .hero-hello-big{
+      margin: 0 0 6px;
       display:flex;
-      gap: 10px;
       align-items:baseline;
-      margin-bottom: 14px;
-      font-size: 15px;
-      letter-spacing:.2px;
-      color: var(--ink2);
+      gap: 10px;
     }
-    .rotating{
-      font-weight:800;
-      color: rgba(255,111,163,.95);
-      border-bottom: 1px solid rgba(255,111,163,.35);
-      padding-bottom: 2px;
-      min-width: 92px;
-      display:inline-block;
-      transition: opacity .18s ease;
-    }
-
-    .hero h1{
-      margin:0 0 12px;
+    .hero-hello-big-word{
       font-family: var(--serif);
+      font-weight: 900;
       font-size: clamp(44px, 6vw, 66px);
       line-height: 1.02;
       letter-spacing: -0.7px;
-      font-weight: 900;
-    }
-    .hero h1 .pink{
-      background: linear-gradient(135deg, var(--pink), var(--pink2));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-    }
-    .hero p{
-      margin: 0 0 22px;
-      max-width: 640px;
-      color: var(--ink2);
-      font-size: 15px;
-      line-height: 1.75;
+      color: var(--ink);
+      transition: opacity .18s ease, transform .18s ease;
+      white-space: nowrap;
     }
 
+    /* Small line below */
+    .hero-tagline{
+      font-family: var(--sans);
+      font-size: 15px;
+      color: var(--ink2);
+      margin: 0 0 18px;
+      letter-spacing: .12em;
+      text-transform: lowercase;
+    }
+
+    /* Start row: GIF on the LEFT, button on the RIGHT */
     .hero-actions{
       display:flex;
-      gap: 16px;
       align-items:center;
+      gap: 16px;
       flex-wrap:wrap;
+    }
+
+    /* GIF: no frame, no background, no shadow */
+    .start-gif{
+      width: 110px;
+      height: 110px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
+    }
+    .start-gif img{
+      width: 110px;
+      height: 110px;
+      display:block;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
     }
 
     .btn{
@@ -252,34 +220,21 @@
       -webkit-tap-highlight-color: transparent;
       white-space:nowrap;
     }
-    /* On hero: button looks Apple-clean */
     body.hero-mode .btn.primary{
       color:#ffffff;
-      background: linear-gradient(135deg, #2a1d16, #1b130f); /* deep brown-black */
+      background: linear-gradient(135deg, #2a1d16, #1b130f);
       box-shadow: 0 16px 36px rgba(36,26,20,.22);
     }
     body.hero-mode .btn.primary:active{ transform: scale(.985); }
 
-    /* Tom & Jerry gif beside button */
-    .start-gif{
-      width: 110px;
-      height: 110px;
-      border-radius: 22px;
-      border: 1px solid var(--line);
-      background: rgba(36,26,20,.02);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-    }
-    .start-gif img{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display:block;
+    @media (max-width: 760px){
+      .hero-inner{ text-align:center; }
+      .hero-actions{ justify-content:center; }
     }
 
-    /* ---------- QUESTIONS (dark) ---------- */
+    /* ===========================
+       QUESTIONS (DARK)
+       =========================== */
     .qwrap{
       height:100%;
       display:flex;
@@ -337,7 +292,7 @@
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
-      transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+      transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease, opacity .18s ease;
     }
     .choice.primary{
       color:#0b0c10;
@@ -374,7 +329,7 @@
       background: linear-gradient(135deg, var(--pink), var(--pink2));
     }
 
-    /* "ARE YOU SURE?" line near heart */
+    /* ARE YOU SURE */
     .heartline{
       display:flex;
       align-items:center;
@@ -385,8 +340,12 @@
       user-select:none;
     }
     .heart{
-      font-size: 18px;
-      filter: drop-shadow(0 12px 20px rgba(255,111,163,.22));
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 22px;
+      height: 22px;
+      filter: drop-shadow(0 12px 20px rgba(255,111,163,.18));
     }
     .areyousure{
       font-size: 12px;
@@ -397,11 +356,13 @@
     }
     .areyousure.show{ display:inline-block; }
 
-    /* Runaway NO button */
+    /* Runaway NO (we'll control by JS as fixed) */
     #finalNo{
-      position:absolute;
-      left: 66%;
-      top: 18px;
+      will-change: transform, left, top, opacity;
+    }
+    .no-pop{
+      transform: scale(.88);
+      opacity: .80;
     }
 
     /* FINAL */
@@ -438,12 +399,15 @@
       box-shadow: 0 22px 60px rgba(0,0,0,.55);
     }
     .gifbox img{ width:100%; display:block; }
+
+    /* Updated final title font (clean, old-money) */
     .finalTitle{
-      margin-top:18px;
-      font-family:var(--serif);
-      font-size: 44px;
-      letter-spacing:-.4px;
-      opacity:.92;
+      margin-top: 18px;
+      font-family: ui-serif, "New York", "Baskerville", "Palatino", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: clamp(28px, 3.2vw, 40px);
+      letter-spacing: -0.2px;
+      opacity: .92;
     }
 
     /* Confetti */
@@ -471,53 +435,31 @@
 </head>
 
 <body class="stars hero-mode">
-
   <div class="wm-hearts" id="wmHearts"></div>
   <div class="confetti" id="confetti"></div>
 
   <div class="wrap">
     <div class="card">
 
-      <div class="topbar">
-        <div class="brand">
-          <span class="dot"></span>
-          <span>hello, Kuo baopay</span>
-        </div>
-        <div class="top-right">
-          <span class="pill">♡</span>
-          <span class="pill" id="tinyStatus">hola</span>
-        </div>
-      </div>
-
       <!-- HERO (white) -->
       <section class="screen active" id="screen-hero">
         <div class="hero">
           <div class="hero-inner">
 
-            <div>
-              <div class="hello-rotator">
-                <span class="rotating" id="rotatingHello">Hola</span>
-                <span>— <span style="color:var(--ink2)">hello</span> <span style="color:var(--ink); font-weight:900;">Kuo baopay</span></span>
+            <!-- Big rotating headline -->
+            <div class="hero-hello-big">
+              <span class="hero-hello-big-word" id="rotatingHello">Hola Kuo BaoPay</span>
+            </div>
+
+            <!-- Small line -->
+            <div class="hero-tagline">a little hello</div>
+
+            <!-- Start row -->
+            <div class="hero-actions">
+              <div class="start-gif" aria-label="start gif">
+                <img src="start.gif" alt="start gif">
               </div>
-
-              <h1>
-                A little <span class="pink">hello</span>,<br/>
-                then a few questions.
-              </h1>
-
-              <p>
-                Minimal, clean, and only for you.<br/>
-                Tap “LET’S START” when you’re ready.
-              </p>
-
-              <div class="hero-actions">
-                <button class="btn primary" id="startBtn">LET’S START</button>
-
-                <!-- ✅ Put your Tom & Jerry GIF in repo root as start.gif -->
-                <div class="start-gif" aria-label="start gif">
-                  <img src="start.gif" alt="Tom and Jerry gif">
-                </div>
-              </div>
+              <button class="btn primary" id="startBtn">LET’S START</button>
             </div>
 
           </div>
@@ -537,6 +479,7 @@
               <div class="choice secondary" data-next="screen-q2">ABSOLUTELY</div>
             </div>
           </div>
+
           <div class="progress">
             <span class="p active"></span><span class="p"></span><span class="p"></span><span class="p"></span><span class="p"></span>
           </div>
@@ -556,6 +499,7 @@
               <div class="choice secondary" data-next="screen-q3">ABSOLUTELY</div>
             </div>
           </div>
+
           <div class="progress">
             <span class="p"></span><span class="p active"></span><span class="p"></span><span class="p"></span><span class="p"></span>
           </div>
@@ -575,6 +519,7 @@
               <div class="choice secondary" data-next="screen-q4">ABSOLUTELY</div>
             </div>
           </div>
+
           <div class="progress">
             <span class="p"></span><span class="p"></span><span class="p active"></span><span class="p"></span><span class="p"></span>
           </div>
@@ -585,8 +530,15 @@
       <section class="screen" id="screen-q4">
         <div class="qwrap">
           <div class="qbox">
+
             <div class="heartline">
-              <span class="heart">💗</span>
+              <span class="heart" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="#ff6fa3" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.8 4.6c-1.6-1.7-4.2-1.7-5.8 0L12 7.6l-3-3c-1.6-1.7-4.2-1.7-5.8 0-1.7 1.8-1.7 4.6 0 6.4L12 20l8.8-9c1.7-1.8 1.7-4.6 0-6.4z"/>
+                </svg>
+              </span>
               <span class="areyousure" id="areYouSure">ARE YOU SURE? 😡</span>
             </div>
 
@@ -616,7 +568,16 @@
       <section class="screen" id="screen-final">
         <div class="final">
           <div style="max-width:760px; padding: 0 14px;">
-            <div style="font-size:28px; margin-bottom:10px;">💗</div>
+            <div style="font-size:28px; margin-bottom:10px;">
+              <!-- line-heart icon -->
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="#ff6fa3" stroke-width="1.6"
+                stroke-linecap="round" stroke-linejoin="round"
+                style="filter: drop-shadow(0 12px 20px rgba(255,111,163,.18));">
+                <path d="M20.8 4.6c-1.6-1.7-4.2-1.7-5.8 0L12 7.6l-3-3c-1.6-1.7-4.2-1.7-5.8 0-1.7 1.8-1.7 4.6 0 6.4L12 20l8.8-9c1.7-1.8 1.7-4.6 0-6.4z"/>
+              </svg>
+            </div>
+
             <h2>Yaaay!</h2>
             <p>
               I knew you’d say yes.<br/>
@@ -640,49 +601,65 @@
   </div>
 
 <script>
-  // watermark hearts
+  // ===== SVG LINE HEART (watermark) =====
   const wm = document.getElementById("wmHearts");
-  const heartChars = ["♡","♥","💗","💖"];
   const HEART_COUNT = 16;
+
+  function heartSVG(opacity){
+    return `
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+        stroke="rgba(255,111,163,${opacity})" stroke-width="1.4"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.8 4.6c-1.6-1.7-4.2-1.7-5.8 0L12 7.6l-3-3c-1.6-1.7-4.2-1.7-5.8 0-1.7 1.8-1.7 4.6 0 6.4L12 20l8.8-9c1.7-1.8 1.7-4.6 0-6.4z"/>
+      </svg>
+    `;
+  }
 
   function spawnWMHearts(){
     wm.innerHTML = "";
     for(let i=0;i<HEART_COUNT;i++){
       const s = document.createElement("span");
-      s.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+      const op = (0.08 + Math.random()*0.08).toFixed(2);
+      s.innerHTML = heartSVG(op);
+
       s.style.left = (Math.random()*100) + "vw";
       s.style.animationDuration = (10 + Math.random()*10) + "s";
       s.style.animationDelay = (-Math.random()*12) + "s";
-      s.style.fontSize = (22 + Math.random()*26) + "px";
-      s.style.color = `rgba(255,111,163,${0.06 + Math.random()*0.08})`;
+      s.style.transform = `translateY(110vh) translateX(0) scale(${0.9 + Math.random()*0.6})`;
       wm.appendChild(s);
     }
   }
   spawnWMHearts();
 
-  // hello rotator
-  const hellos = ["Hola","Bonjour","你好","こんにちは","哈囉"];
+  // ===== Big rotating headline =====
+  const hellos = [
+    "Hola Kuo BaoPay",
+    "Bonjour Kuo BaoPay",
+    "你好 Kuo BaoPay",
+    "こんにちは Kuo BaoPay",
+    "哈囉 Kuo BaoPay"
+  ];
   let hiIdx = 0;
   const rotatingHello = document.getElementById("rotatingHello");
-  const tinyStatus = document.getElementById("tinyStatus");
 
   setInterval(() => {
     hiIdx = (hiIdx + 1) % hellos.length;
     rotatingHello.style.opacity = 0;
+    rotatingHello.style.transform = "translateY(2px)";
     setTimeout(() => {
       rotatingHello.textContent = hellos[hiIdx];
       rotatingHello.style.opacity = 1;
-      tinyStatus.textContent = hellos[hiIdx].toLowerCase();
+      rotatingHello.style.transform = "translateY(0)";
     }, 170);
-  }, 900);
+  }, 950);
 
-  // screens
+  // ===== Screen navigation =====
   const screens = Array.from(document.querySelectorAll(".screen"));
   function show(id){
     screens.forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
 
-    // toggle hero-mode for white topbar
+    // Toggle hero-mode (white background)
     if(id === "screen-hero"){
       document.body.classList.add("hero-mode");
     }else{
@@ -695,37 +672,57 @@
     btn.addEventListener("click", () => show(btn.getAttribute("data-next")));
   });
 
-  // runaway NO + are you sure
+  // ===== Runaway NO + "ARE YOU SURE?" =====
   const finalNo = document.getElementById("finalNo");
-  const noArena = document.getElementById("noArena");
   const areYouSure = document.getElementById("areYouSure");
 
+  // Make NO roam over full viewport (whole page), not just near YES
+  finalNo.style.position = "fixed";
+  finalNo.style.left = "70vw";
+  finalNo.style.top  = "60vh";
+
   function moveNo(){
-    const rect = noArena.getBoundingClientRect();
+    const rect = document.documentElement.getBoundingClientRect(); // viewport
     const b = finalNo.getBoundingClientRect();
-    const maxX = Math.max(0, rect.width - b.width);
-    const maxY = Math.max(0, rect.height - b.height);
+    const padding = 16;
+
+    const maxX = Math.max(0, rect.width - b.width - padding);
+    const maxY = Math.max(0, rect.height - b.height - padding);
 
     finalNo.style.left = (Math.random() * maxX) + "px";
     finalNo.style.top  = (Math.random() * maxY) + "px";
 
+    // show angry line
     areYouSure.classList.add("show");
     setTimeout(() => areYouSure.classList.remove("show"), 850);
+
+    // extra playful effect: shrink + fade momentarily
+    finalNo.classList.add("no-pop");
+    setTimeout(() => finalNo.classList.remove("no-pop"), 160);
   }
 
-  finalNo.style.position = "absolute";
-  finalNo.style.left = "66%";
-  finalNo.style.top  = "18px";
+  // Only activate runaway when Q4 is visible
+  function isOnQ4(){
+    return document.getElementById("screen-q4").classList.contains("active");
+  }
 
-  finalNo.addEventListener("mouseenter", moveNo);
-  finalNo.addEventListener("mousemove", moveNo);
-  finalNo.addEventListener("touchstart", (e) => {
-    e.preventDefault();
+  function tryMove(e){
+    if(!isOnQ4()) return;
+    if(e) e.preventDefault?.();
     moveNo();
-  }, { passive:false });
-  finalNo.addEventListener("click", moveNo);
+  }
 
-  // confetti + final
+  // Desktop hover + move
+  finalNo.addEventListener("mouseenter", tryMove);
+  finalNo.addEventListener("mousemove", tryMove);
+
+  // Mobile touch
+  finalNo.addEventListener("touchstart", tryMove, { passive:false });
+
+  // Clicking NO still escapes
+  finalNo.addEventListener("click", tryMove);
+
+  // ===== Confetti celebration =====
   const confetti = document.getElementById("confetti");
   function popConfetti(){
     confetti.innerHTML = "";
@@ -749,9 +746,11 @@
     show("screen-final");
   });
 
+  // Keep NO inside viewport on rotate/resize
   window.addEventListener("resize", () => {
-    finalNo.style.left = "66%";
-    finalNo.style.top  = "18px";
+    if(!isOnQ4()) return;
+    // nudge once to ensure it doesn't clip on new size
+    moveNo();
   });
 </script>
 </body>
