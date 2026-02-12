@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Hello Kuo BaoPay</title>
+
+  <style>
+    :root{
+      --pink:#ff6fae;
+      --pink2:#ff4f9a;
+      --ink:#2a241f;           /* 深棕偏黑 */
+      --muted:#6d6158;
+      --cream:#fbf6ee;         /* 奶油底（最後 kiss 頁會用這個） */
+      --card-dark: rgba(0,0,0,.28);
+      --stroke: rgba(255,111,174,.34);
+      --stroke2: rgba(255,111,174,.22);
+      --dot: rgba(255,255,255,.28);
+      --dotOn: rgba(255,111,174,.95);
+
+      /* 老錢感（不用外部字體，iOS/Android 都穩） */
+      --serif: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", "Palatino",
+               "Times New Roman", Times, serif;
+      --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+              "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      overflow:hidden;
+
+      /* 主要深色背景（問題頁） */
+      background:
+        radial-gradient(1100px 700px at 70% -10%, rgba(255,111,174,.10), transparent 55%),
+        radial-gradient(900px 600px at 15% 110%, rgba(255,111,174,.08), transparent 60%),
+        linear-gradient(180deg, #050506 0%, #0b0b0e 60%, #07070a 100%);
+      color:#fff;
+    }
+
+    /* 背景：線條愛心浮水印 */
+    .wm-hearts{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:0;
+    }
+    .wm-heart{
+      position:absolute;
+      width:22px; height:22px;         /* 固定寬高避免變形 */
+      opacity:.22;
+      filter: blur(.1px);
+      animation: floatUp linear infinite;
+      will-change: transform, opacity;
+    }
+    .wm-heart svg{ width:100%; height:100%; display:block; }
+    .wm-heart path{
+      fill:none;
+      stroke: var(--stroke);
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .wm-heart.t2 path{ stroke: var(--stroke2); stroke-width:2; }
+    @keyframes floatUp{
+      0%   { transform: translateY(110vh) translateX(0) scale(1); opacity:.0; }
+      10%  { opacity:.22; }
+      80%  { opacity:.22; }
+      100% { transform: translateY(-20vh) translateX(var(--drift, 0px)) scale(var(--scale,1)); opacity:0; }
+    }
+
+    /* 主要容器 */
+    .wrap{
+      position:relative;
+      z-index:1;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(14px, 3vw, 28px);
+    }
+
+    /* 卡片：手機自適應 */
+    .card{
+      width:min(980px, 94vw);
+      min-height:min(640px, 82vh);
+      border-radius: 28px;
+      padding: clamp(20px, 4.2vw, 46px);
+      position:relative;
+      overflow:hidden;
+
+      background: var(--card-dark);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow:
+        0 24px 70px rgba(0,0,0,.55),
+        inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* 白/奶油卡片（首頁 & 成功頁） */
+    .card.light{
+      background: var(--cream);
+      border: 1px solid rgba(42,36,31,.16);
+      box-shadow:
+        0 26px 80px rgba(0,0,0,.55),
+        inset 0 1px 0 rgba(255,255,255,.55);
+      color: var(--ink);
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+
+    .screen{ display:none; height:100%; }
+    .screen.active{ display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+
+    /* 頂部小愛心（題目頁） */
+    .tinyHeart{
+      width:22px; height:22px;
+      margin: 0 auto 10px;
+      opacity:.9;
+    }
+    .tinyHeart svg{ width:100%; height:100%; }
+    .tinyHeart path{ fill:none; stroke: var(--pink); stroke-width:2.4; }
+
+    /* 頁碼 */
+    .idx{
+      font-family: var(--sans);
+      font-size: 12px;
+      letter-spacing:.26em;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 10px;
+    }
+    .card.light .idx{ color: rgba(42,36,31,.45); }
+
+    /* 大標題：老錢 serif */
+    .title{
+      font-family: var(--serif);
+      font-size: clamp(34px, 5.2vw, 58px);
+      letter-spacing:-.02em;
+      line-height:1.05;
+      margin: 0 0 10px;
+    }
+
+    .subtitle{
+      font-family: var(--sans);
+      font-size: 14px;
+      letter-spacing:.18em;
+      text-transform: lowercase;
+      color: rgba(255,255,255,.66);
+      margin-bottom: 26px;
+    }
+    .card.light .subtitle{ color: rgba(42,36,31,.52); }
+
+    /* 粉紅點綴（a little hello） */
+    .helloSub{
+      font-family: var(--sans);
+      font-size: 16px;
+      letter-spacing:.22em;
+      text-transform: lowercase;
+      color: var(--pink);
+      margin-top: 10px;
+      margin-bottom: 28px;
+    }
+
+    /* 首頁輪播大字 */
+    .rotator{
+      font-family: var(--serif);
+      font-size: clamp(34px, 6.2vw, 64px);
+      letter-spacing:-.03em;
+      line-height:1.05;
+      margin: 0;
+      color: rgba(42,36,31,.18);  /* 先淡，下面會用 overlay 字顯示當前語言 */
+    }
+
+    .rotatorFront{
+      position: absolute;
+      inset: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(20px, 4.2vw, 46px);
+      pointer-events:none;
+    }
+    .rotatorText{
+      font-family: var(--serif);
+      font-size: clamp(38px, 7vw, 72px);
+      letter-spacing:-.03em;
+      line-height:1.04;
+      color: rgba(42,36,31,.20);
+      text-align:center;
+      transform: translateY(-22px);
+      max-width: 92%;
+    }
+
+    /* 首頁內容置中 */
+    .introInner{
+      position:relative;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      max-width: 820px;
+    }
+
+    .startRow{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    /* 首頁小 Jerry（如果你要留） */
+    .startGif{
+      width: 72px; height: 72px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .startGif img{
+      width:72px; height:72px;
+      object-fit:contain;
+      display:block;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    /* 按鈕 */
+    .btnRow{
+      display:flex;
+      gap: 14px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 6px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .pill{
+      min-width: 172px;
+      padding: 14px 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: transparent;
+      color: rgba(255,255,255,.92);
+      font-family: var(--sans);
+      font-weight: 600;
+      letter-spacing:.22em;
+      text-transform: uppercase;
+      font-size: 12px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      touch-action: manipulation;
+    }
+    .pill:active{ transform: scale(.98); }
+
+    .pill.primary{
+      background: linear-gradient(180deg, rgba(255,111,174,.98), rgba(255,79,154,.92));
+      color: rgba(20,10,14,.92);
+      border-color: rgba(255,111,174,.58);
+      box-shadow: 0 10px 30px rgba(255,111,174,.18);
+    }
+
+    /* light 卡片上的按鈕 */
+    .card.light .pill{
+      border-color: rgba(42,36,31,.18);
+      color: rgba(42,36,31,.86);
+    }
+    .card.light .pill.primary{
+      color: rgba(20,10,14,.92);
+      border-color: rgba(255,111,174,.40);
+    }
+
+    /* dots */
+    .dots{
+      position:absolute;
+      left:50%;
+      transform: translateX(-50%);
+      bottom: 18px;
+      display:flex;
+      gap: 8px;
+      opacity:.9;
+    }
+    .dot{
+      width: 6px; height:6px;
+      border-radius: 999px;
+      background: var(--dot);
+    }
+    .dot.on{
+      width: 22px;
+      background: var(--dotOn);
+    }
+    .card.light .dot{ background: rgba(42,36,31,.20); }
+    .card.light .dot.on{ background: rgba(255,111,174,.92); }
+
+    /* 最後題：ARE YOU SURE? */
+    .areYouSure{
+      font-family: var(--sans);
+      font-size: 12px;
+      letter-spacing:.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.75);
+      margin-bottom: 10px;
+      min-height: 16px;
+    }
+
+    /* 成功頁 */
+    .yayTitle{
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 68px);
+      letter-spacing:-.02em;
+      margin: 2px 0 10px;
+    }
+    .yayMsg{
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height:1.5;
+      color: rgba(42,36,31,.62);
+      margin-bottom: 18px;
+      max-width: 520px;
+    }
+
+    /* 親親 gif：融入奶油底（不加白框） */
+    .gifBox{
+      width: min(360px, 72vw);
+      aspect-ratio: 1 / 1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 18px;
+      background: var(--cream); /* 跟頁面同色 */
+      overflow:hidden;
+      margin: 10px 0 18px;
+      border: 0;               /* 不要框 */
+      box-shadow: none;        /* 不要突兀 */
+    }
+    .gifBox img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display:block;
+      background: var(--cream);  /* 讓 gif 周圍視覺一致 */
+    }
+
+    .finalTitle{
+      font-family: var(--serif);
+      font-size: clamp(26px, 4.2vw, 44px);
+      letter-spacing:-.02em;
+      margin: 0;
+    }
+
+    /* Confetti：從下往上像拉炮，慢一點 */
+    .confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index: 2000;
+      display:none;
+      overflow:hidden;
+    }
+    .confetti.show{ display:block; }
+    .confetti i{
+      position:absolute;
+      bottom: -18px;
+      width: 10px;
+      height: 18px;
+      border-radius: 2px;
+      opacity: .95;
+      transform: translateY(0) rotate(0deg);
+      animation: popUp 2.8s ease-out forwards;
+    }
+    @keyframes popUp{
+      0%   { transform: translateY(0) rotate(0deg); opacity:0; }
+      10%  { opacity:.95; }
+      100% { transform: translateY(-120vh) rotate(360deg); opacity:0; }
+    }
+
+    /* 手機：卡片更高、內容置中保持 */
+    @media (max-width: 520px){
+      .card{ border-radius: 22px; min-height: 84vh; }
+      .pill{ min-width: 150px; }
+      .startGif{ width: 64px; height:64px; }
+      .startGif img{ width:64px; height:64px; }
+      .gifBox{ width: min(320px, 80vw); }
+      .rotatorText{ transform: translateY(-10px); }
+    }
+
+    /* 避免 iOS 點到文字選取 */
+    button{ -webkit-touch-callout:none; }
+  </style>
+</head>
+
+<body>
+  <div class="wm-hearts" id="wmHearts"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <div class="wrap">
+    <div class="card light" id="card">
+
+      <!-- Intro (light) -->
+      <section class="screen active" id="intro">
+        <div class="rotatorFront" aria-hidden="true">
+          <div class="rotatorText" id="rotatorText">Hola Kuo BaoPay</div>
+        </div>
+
+        <div class="introInner">
+          <div class="rotator" aria-hidden="true">Hello</div>
+          <div class="helloSub">a little hello</div>
+
+          <div class="startRow">
+            <!-- 如果你不要首頁 gif，把整個 startGif div 刪掉即可 -->
+            <div class="startGif" aria-hidden="true">
+              <img src="start.gif" alt="" />
+            </div>
+            <button class="pill primary" id="startBtn">LET’S START</button>
+          </div>
+        </div>
+
+        <div class="dots" aria-hidden="true">
+          <span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </section>
+
+      <!-- Q1 -->
+      <section class="screen" id="q1">
+        <div class="tinyHeart" aria-hidden="true">
+          <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+            <path d="M12 20s-7-4.5-9.2-8.6C1.2 8.7 2.6 6 5.5 6c1.6 0 3 .9 3.8 2 0.8-1.1 2.2-2 3.8-2 2.9 0 4.3 2.7 2.7 5.4C19 15.5 12 20 12 20z"/>
+          </svg>
+        </div>
+        <div class="idx">01</div>
+        <h2 class="title">Do you like spending time<br/>with me?</h2>
+        <div class="subtitle">be honest…</div>
+        <div class="btnRow">
+          <button class="pill primary" data-next="q2">YES ♡</button>
+          <button class="pill" data-next="q2">ABSOLUTELY</button>
+        </div>
+        <div class="dots" aria-hidden="true">
+          <span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </section>
+
+      <!-- Q2 -->
+      <section class="screen" id="q2">
+        <div class="tinyHeart" aria-hidden="true">
+          <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+            <path d="M12 20s-7-4.5-9.2-8.6C1.2 8.7 2.6 6 5.5 6c1.6 0 3 .9 3.8 2 0.8-1.1 2.2-2 3.8-2 2.9 0 4.3 2.7 2.7 5.4C19 15.5 12 20 12 20z"/>
+          </svg>
+        </div>
+        <div class="idx">02</div>
+        <h2 class="title">Would you choose me<br/>again?</h2>
+        <div class="subtitle">no pressure…</div>
+        <div class="btnRow">
+          <button class="pill primary" data-next="q3">YES ♡</button>
+          <button class="pill" data-next="q3">100%</button>
+        </div>
+        <div class="dots" aria-hidden="true">
+          <span class="dot"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </section>
+
+      <!-- Q3 -->
+      <section class="screen" id="q3">
+        <div class="tinyHeart" aria-hidden="true">
+          <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+            <path d="M12 20s-7-4.5-9.2-8.6C1.2 8.7 2.6 6 5.5 6c1.6 0 3 .9 3.8 2 0.8-1.1 2.2-2 3.8-2 2.9 0 4.3 2.7 2.7 5.4C19 15.5 12 20 12 20z"/>
+          </svg>
+        </div>
+        <div class="idx">03</div>
+        <h2 class="title">Do you feel lucky<br/>to have me?</h2>
+        <div class="subtitle">just saying…</div>
+        <div class="btnRow">
+          <button class="pill primary" data-next="q4">YES ♡</button>
+          <button class="pill" data-next="q4">TOTALLY</button>
+        </div>
+        <div class="dots" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </section>
+
+      <!-- Q4 (real question) -->
+      <section class="screen" id="q4">
+        <div class="areYouSure" id="areYouSure"></div>
+
+        <div class="tinyHeart" id="q4Heart" aria-hidden="true">
+          <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+            <path d="M12 20s-7-4.5-9.2-8.6C1.2 8.7 2.6 6 5.5 6c1.6 0 3 .9 3.8 2 0.8-1.1 2.2-2 3.8-2 2.9 0 4.3 2.7 2.7 5.4C19 15.5 12 20 12 20z"/>
+          </svg>
+        </div>
+
+        <div class="idx">04</div>
+        <h2 class="title">Will you be<br/><span style="color:var(--pink)">my Valentine</span>?</h2>
+        <div class="subtitle">i’ve been waiting to ask you this…</div>
+
+        <div class="btnRow" id="q4Row">
+          <button class="pill primary" id="yesBtn">YES, I’D LOVE TO ♡</button>
+          <button class="pill" id="noBtn" type="button">NO</button>
+        </div>
+
+        <div class="dots" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot on"></span><span class="dot"></span>
+        </div>
+      </section>
+
+      <!-- Success (light / cream like gif background) -->
+      <section class="screen" id="yay">
+        <div class="tinyHeart" aria-hidden="true">
+          <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+            <path d="M12 20s-7-4.5-9.2-8.6C1.2 8.7 2.6 6 5.5 6c1.6 0 3 .9 3.8 2 0.8-1.1 2.2-2 3.8-2 2.9 0 4.3 2.7 2.7 5.4C19 15.5 12 20 12 20z"/>
+          </svg>
+        </div>
+
+        <h2 class="yayTitle">Yaaay!</h2>
+        <div class="yayMsg">
+          I knew you’d say yes.<br/>
+          You just made me the happiest person in the world.
+        </div>
+
+        <div class="gifBox">
+          <img src="kiss.gif" alt="kiss gif" />
+        </div>
+
+        <h3 class="finalTitle">Happy Valentine’s and 18th</h3>
+
+        <div class="dots" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot on"></span>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="bgm" src="bgm.mp3" preload="auto" loop></audio>
+  <audio id="pop" src="pop.mp3" preload="auto"></audio>
+
+  <script>
+    /* -------------------------
+      Helper
+    --------------------------*/
+    const $ = (id)=>document.getElementById(id);
+    function showScreen(id){
+      const card = $('card');
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      $(id).classList.add('active');
+
+      // light/dark card switching
+      if(id === 'intro' || id === 'yay'){
+        card.classList.add('light');
+      }else{
+        card.classList.remove('light');
+      }
+    }
+
+    /* -------------------------
+      Intro rotator (big)
+    --------------------------*/
+    const phrases = [
+      'Hola Kuo BaoPay',
+      'Bonjour Kuo BaoPay',
+      '你好 Kuo BaoPay',
+      'こんにちは Kuo BaoPay',
+      '哈囉 Kuo BaoPay'
+    ];
+    let rotIdx = 0;
+    const rotatorText = $('rotatorText');
+
+    function tickRotator(){
+      rotIdx = (rotIdx + 1) % phrases.length;
+      rotatorText.style.opacity = 0;
+      setTimeout(()=>{
+        rotatorText.textContent = phrases[rotIdx];
+        rotatorText.style.opacity = 1;
+      }, 220);
+    }
+    rotatorText.style.transition = 'opacity .22s ease';
+    setInterval(tickRotator, 1400);
+
+    /* -------------------------
+      Background outlined hearts
+    --------------------------*/
+    const wm = $('wmHearts');
+    const heartSVG = `
+      <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <path d="M12 20s-7-4.5-9.2-8.6C1.2 8.7 2.6 6 5.5 6c1.6 0 3 .9 3.8 2 0.8-1.1 2.2-2 3.8-2 2.9 0 4.3 2.7 2.7 5.4C19 15.5 12 20 12 20z"/>
+      </svg>
+    `;
+
+    function spawnWMHearts(){
+      wm.innerHTML = '';
+      const count = 18; // 密度（可調）
+      for(let i=0;i<count;i++){
+        const d = document.createElement('div');
+        d.className = 'wm-heart' + (i%3===0 ? ' t2':'');
+        d.style.left = Math.random()*100 + 'vw';
+        d.style.animationDuration = (10 + Math.random()*10) + 's';
+        d.style.animationDelay = (-Math.random()*10) + 's';
+        d.style.setProperty('--drift', ((Math.random()*2-1)*40).toFixed(0)+'px');
+        d.style.setProperty('--scale', (0.75 + Math.random()*1.15).toFixed(2));
+        const size = 16 + Math.random()*18;
+        d.style.width = size+'px';
+        d.style.height = size+'px';
+        d.innerHTML = heartSVG;
+        wm.appendChild(d);
+      }
+    }
+    spawnWMHearts();
+    window.addEventListener('resize', spawnWMHearts);
+
+    /* -------------------------
+      Buttons navigation
+    --------------------------*/
+    document.querySelectorAll('[data-next]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const next = e.currentTarget.getAttribute('data-next');
+        showScreen(next);
+      }, {passive:true});
+    });
+
+    /* -------------------------
+      Audio policy (iOS requires user gesture)
+      Start BGM after clicking LET'S START
+    --------------------------*/
+    const bgm = $('bgm');
+    const pop = $('pop');
+
+    $('startBtn').addEventListener('click', ()=>{
+      // start bgm
+      bgm.volume = 0.65;
+      bgm.play().catch(()=>{});
+      showScreen('q1');
+    });
+
+    /* -------------------------
+      Q4 NO button: stays always visible, moves only after first interaction.
+      Also: keep inside card AND not covering texts.
+    --------------------------*/
+    const noBtn = $('noBtn');
+    const yesBtn = $('yesBtn');
+    const q4Row = $('q4Row');
+    const areYouSure = $('areYouSure');
+    const q4Heart = $('q4Heart');
+
+    let noActivated = false;     // after first press/hover, it starts running
+    let sureLocked = false;      // are-you-sure stays until YES
+
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function moveNoAnywhereInsideCard(){
+      const card = $('card');
+      const cardRect = card.getBoundingClientRect();
+      const btnRect  = noBtn.getBoundingClientRect();
+
+      // Safe zone: avoid title/top text & dots/bottom
+      // (這些數字是「保守值」，手機/平板都會留出安全區，不壓字)
+      const paddingTop = Math.max(150, cardRect.height * 0.28);    // 上方保留較多
+      const paddingBottom = Math.max(120, cardRect.height * 0.18); // 下方保留
+      const paddingSide = 18;
+
+      const minX = cardRect.left + paddingSide;
+      const maxX = cardRect.right - btnRect.width - paddingSide;
+
+      const minY = cardRect.top + paddingTop;
+      const maxY = cardRect.bottom - btnRect.height - paddingBottom;
+
+      const x = clamp(minX + Math.random() * (maxX - minX), minX, maxX);
+      const y = clamp(minY + Math.random() * (maxY - minY), minY, maxY);
+
+      // Use fixed to work across iOS scroll/zoom; still clamped to card rect
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top  = `${y}px`;
+      noBtn.style.zIndex = 30;
+    }
+
+    function lockAreYouSure(){
+      sureLocked = true;
+      areYouSure.textContent = 'ARE YOU SURE? 😡';
+      // keep it visible (do not revert)
+      q4Heart.style.display = 'none';
+    }
+
+    function resetAreYouSure(){
+      sureLocked = false;
+      areYouSure.textContent = '';
+      q4Heart.style.display = '';
+    }
+
+    // Prevent NO from doing anything like navigation
+    function onNoInteract(e){
+      e.preventDefault();
+      e.stopPropagation();
+
+      lockAreYouSure();
+
+      if(!noActivated){
+        // First time: activate running after the first click/tap (your requirement)
+        noActivated = true;
+        // small delay so user "feels" it started running
+        setTimeout(moveNoAnywhereInsideCard, 120);
+        return;
+      }
+      moveNoAnywhereInsideCard();
+    }
+
+    // NO: only starts running after click/tap; then keeps running on hover/touch
+    noBtn.addEventListener('click', onNoInteract);
+    // After activated, also run away on pointer enter (mouse) / touchstart (mobile)
+    noBtn.addEventListener('pointerenter', (e)=>{
+      if(noActivated){ onNoInteract(e); }
+    });
+    noBtn.addEventListener('touchstart', (e)=>{
+      if(noActivated){ onNoInteract(e); }
+    }, {passive:false});
+
+    // YES -> success
+    yesBtn.addEventListener('click', ()=>{
+      // stop the "are you sure"
+      resetAreYouSure();
+
+      // show yay screen
+      showScreen('yay');
+
+      // play pop SFX
+      pop.currentTime = 0;
+      pop.volume = 0.9;
+      pop.play().catch(()=>{});
+
+      // confetti cannon (from bottom to top)
+      launchConfetti();
+    });
+
+    // When entering q4: ensure NO starts beside YES (not fixed roaming)
+    function setupQ4Layout(){
+      noActivated = false;
+      lockAreYouSure(); // you want it only after NO; so ensure OFF initially
+      resetAreYouSure();
+
+      // Put NO back in flow beside YES
+      noBtn.style.position = '';
+      noBtn.style.left = '';
+      noBtn.style.top = '';
+      noBtn.style.zIndex = '';
+    }
+
+    // Re-run setup when opening q4 via previous questions
+    ['q1','q2','q3'].forEach(id=>{
+      const sec = $(id);
+      sec.addEventListener('click', ()=>{}, {passive:true});
+    });
+
+    // Hook: whenever q4 becomes active, reset layout
+    const observer = new MutationObserver(()=>{
+      if($('q4').classList.contains('active')) setupQ4Layout();
+    });
+    observer.observe($('q4'), {attributes:true, attributeFilter:['class']});
+
+    /* -------------------------
+      Confetti (pink + white), slower, from bottom
+    --------------------------*/
+    const confetti = $('confetti');
+    function launchConfetti(){
+      confetti.innerHTML = '';
+      confetti.classList.add('show');
+
+      const pieces = 120;
+      for(let i=0;i<pieces;i++){
+        const p = document.createElement('i');
+        const left = Math.random()*100;
+        const delay = Math.random()*0.25;
+        const dur = 2.6 + Math.random()*0.8;
+        const tilt = (Math.random()*2-1)*30;
+
+        p.style.left = left+'vw';
+        p.style.animationDelay = delay+'s';
+        p.style.animationDuration = dur+'s';
+        p.style.transform = `translateY(0) rotate(${tilt}deg)`;
+
+        // two colors: pink and off-white
+        p.style.background = (Math.random() < 0.55) ? 'rgba(255,111,174,.95)' : 'rgba(255,255,255,.90)';
+
+        confetti.appendChild(p);
+      }
+
+      setTimeout(()=>{
+        confetti.classList.remove('show');
+        confetti.innerHTML = '';
+      }, 3400);
+    }
+
+    /* -------------------------
+      Fix: after moving NO, if user rotates / resizes, keep it inside card
+    --------------------------*/
+    window.addEventListener('resize', ()=>{
+      if($('q4').classList.contains('active') && noActivated){
+        // push it back inside safe bounds
+        moveNoAnywhereInsideCard();
+      }
+    });
+
+    /* -------------------------
+      Start at intro
+    --------------------------*/
+    showScreen('intro');
+  </script>
+</body>
+</html>
