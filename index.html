@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+  --pink:#ff4f9a;
+  --cream:#fcfaf7;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:'Poppins',sans-serif;
+  background:#0b0b12;
+  overflow:hidden;
+}
+
+.wrap{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.card{
+  width:100%;
+  max-width:780px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(18px);
+  border-radius:28px;
+  padding:60px 30px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+/* responsive */
+@media(max-width:600px){
+  .card{
+    padding:40px 20px;
+  }
+}
+
+/* watermark hearts */
+.wm-heart{
+  position:absolute;
+  width:28px;
+  height:28px;
+  aspect-ratio:1/1;
+  opacity:0.15;
+}
+
+/* headings */
+h1{
+  font-family:'Playfair Display',serif;
+  font-size:40px;
+  margin-bottom:15px;
+}
+
+.pink{
+  color:var(--pink);
+}
+
+.sub{
+  opacity:0.6;
+  margin-bottom:35px;
+}
+
+/* buttons */
+.btn{
+  padding:14px 32px;
+  border-radius:999px;
+  border:none;
+  font-weight:600;
+  cursor:pointer;
+  margin:10px;
+  transition:0.3s;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,#ff6fae,#ff4f9a);
+  color:white;
+  box-shadow:0 10px 30px rgba(255,79,154,0.4);
+}
+
+.btn-outline{
+  background:transparent;
+  color:white;
+  border:1px solid rgba(255,255,255,0.4);
+}
+
+.btn-primary:hover{
+  transform:scale(1.05);
+}
+
+.btn-outline:hover{
+  background:rgba(255,255,255,0.1);
+}
+
+/* final page */
+.final{
+  background:var(--cream);
+  color:#2a2a2a;
+}
+
+.final h1{
+  color:#2a2a2a;
+}
+
+.gif{
+  margin:30px 0;
+}
+
+.gif img{
+  width:220px;
+  height:auto;
+  border-radius:20px;
+  background:transparent;
+}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="card" id="card">
+
+    <div id="page1">
+      <h1>Hello</h1>
+      <div class="sub pink">a little hello</div>
+      <button class="btn btn-primary" onclick="next()">LET’S START</button>
+    </div>
+
+    <div id="page2" style="display:none;">
+      <h1>Do you like spending time with me?</h1>
+      <div class="sub">be honest…</div>
+
+      <button class="btn btn-primary" onclick="next()">YES</button>
+      <button class="btn btn-outline" id="noBtn">NO</button>
+    </div>
+
+    <div id="page3" style="display:none;" class="final">
+      <h1>Will you be <span class="pink">my Valentine?</span></h1>
+      <div class="gif">
+        <img src="kiss.gif" alt="">
+      </div>
+      <button class="btn btn-primary" onclick="celebrate()">YES, I’D LOVE TO</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+/* page switching */
+function next(){
+  if(document.getElementById("page1").style.display !== "none"){
+    document.getElementById("page1").style.display="none";
+    document.getElementById("page2").style.display="block";
+  }else{
+    document.getElementById("page2").style.display="none";
+    document.getElementById("page3").style.display="block";
+  }
+}
+
+/* NO button always exists and runs */
+const noBtn = document.getElementById("noBtn");
+
+noBtn.addEventListener("click",function(){
+  const card = document.getElementById("card");
+  const rect = card.getBoundingClientRect();
+
+  const maxX = rect.width - noBtn.offsetWidth - 40;
+  const maxY = rect.height - noBtn.offsetHeight - 40;
+
+  const randX = Math.random()*maxX;
+  const randY = Math.random()*maxY;
+
+  noBtn.style.position="absolute";
+  noBtn.style.left=randX+"px";
+  noBtn.style.top=randY+"px";
+});
+
+/* celebration */
+function celebrate(){
+  alert("Yaaay ❤️");
+}
+
+</script>
+
+</body>
+</html>
