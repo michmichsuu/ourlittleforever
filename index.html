@@ -611,7 +611,7 @@
             </p>
 
             <div class="gifbox">
-              <img id="kissGif" src="kiss.gif.gif" alt="kissing gif" />
+              <img id="kissGif" src="kiss.gif" alt="kissing gif" />
             </div>
 
             <div class="finalTitle">Happy Valentine’s and 18th</div>
@@ -634,13 +634,13 @@
   // ===== File fallback for start gif =====
   (function(){
     const startImg = document.getElementById("startGif");
-    startImg.onerror = () => { startImg.src = "start.gif.gif"; };
+    startImg.onerror = () => { startImg.src = "start.gif"; };
   })();
 
   // ===== File fallback for kiss gif (fix "?" problem) =====
   (function(){
     const img = document.getElementById("kissGif");
-    const tries = ["kiss.gif.gif", "kiss.gif", "kiss.gif.gif.gif"];
+    const tries = ["kiss.gif", "kiss.gif", "kiss.gif"];
     let i = 0;
     img.onerror = () => {
       i++;
