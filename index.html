@@ -45,7 +45,7 @@
       overflow:hidden;
     }
 
-    /* subtle star speckles (for dark screens only; hero will hide it) */
+    /* subtle star speckles */
     .stars:before{
       content:"";
       position:fixed; inset:0;
@@ -58,7 +58,7 @@
       pointer-events:none;
     }
 
-    /* Floating watermark hearts (SVG line heart) */
+    /* Floating watermark hearts (ALL LINE HEARTS) */
     .wm-hearts{
       position:fixed; inset:0;
       pointer-events:none;
@@ -105,7 +105,7 @@
     /* Screens */
     .screen{
       position:absolute;
-      inset:0;               /* topbar removed */
+      inset:0;
       padding: 34px 28px 22px;
       display:none;
       z-index:15;
@@ -113,7 +113,7 @@
     .screen.active{ display:block; }
 
     /* ===========================
-       HERO (WHITE, CLEAN)
+       HERO (WHITE, CENTERED)
        =========================== */
     #screen-hero{
       background: var(--paper);
@@ -127,9 +127,6 @@
     }
     body.hero-mode.stars:before{
       opacity: 0 !important;
-    }
-    body.hero-mode .wm-hearts span{
-      opacity: .55;
     }
 
     .hero{
@@ -146,12 +143,15 @@
       grid-template-columns: 1fr;
       gap: 18px;
       align-items:center;
+      justify-items:center;
+      text-align:center;
     }
 
     /* Big rotator (H1 level) */
     .hero-hello-big{
       margin: 0 0 6px;
       display:flex;
+      justify-content:center;
       align-items:baseline;
       gap: 10px;
     }
@@ -166,7 +166,6 @@
       white-space: nowrap;
     }
 
-    /* Small line below */
     .hero-tagline{
       font-family: var(--sans);
       font-size: 15px;
@@ -176,15 +175,15 @@
       text-transform: lowercase;
     }
 
-    /* Start row: GIF on the LEFT, button on the RIGHT */
     .hero-actions{
       display:flex;
       align-items:center;
+      justify-content:center;
       gap: 16px;
       flex-wrap:wrap;
     }
 
-    /* GIF: no frame, no background, no shadow */
+    /* GIF: no frame, no bg, no shadow */
     .start-gif{
       width: 110px;
       height: 110px;
@@ -227,11 +226,6 @@
     }
     body.hero-mode .btn.primary:active{ transform: scale(.985); }
 
-    @media (max-width: 760px){
-      .hero-inner{ text-align:center; }
-      .hero-actions{ justify-content:center; }
-    }
-
     /* ===========================
        QUESTIONS (DARK)
        =========================== */
@@ -249,6 +243,7 @@
       width: min(760px, 94vw);
       padding: 18px 18px 0;
     }
+
     .qindex{
       font-size: 12px;
       letter-spacing: .26em;
@@ -257,6 +252,7 @@
       margin-bottom: 16px;
       user-select:none;
     }
+
     .qtitle{
       margin: 0;
       font-family: var(--serif);
@@ -265,6 +261,7 @@
       letter-spacing: -0.4px;
       font-weight: 900;
     }
+
     .qsub{
       margin-top: 10px;
       color: rgba(255,255,255,.58);
@@ -273,6 +270,7 @@
       text-transform: lowercase;
       user-select:none;
     }
+
     .qrow{
       margin-top: 28px;
       display:flex;
@@ -282,6 +280,7 @@
       position:relative;
       height: 92px;
     }
+
     .choice{
       border-radius: 999px;
       padding: 12px 18px;
@@ -303,6 +302,7 @@
       display:flex; gap:10px; align-items:center; justify-content:center;
     }
     .choice.primary:active{ transform: scale(.985); }
+
     .choice.secondary{
       color: rgba(255,255,255,.80);
       background: transparent;
@@ -329,7 +329,7 @@
       background: linear-gradient(135deg, var(--pink), var(--pink2));
     }
 
-    /* ARE YOU SURE */
+    /* Top small heart (Q1-Q4) */
     .heartline{
       display:flex;
       align-items:center;
@@ -338,6 +338,9 @@
       margin-bottom: 18px;
       min-height: 26px;
       user-select:none;
+    }
+    .heartline.mini{
+      margin-bottom: 14px;
     }
     .heart{
       display:inline-flex;
@@ -356,7 +359,7 @@
     }
     .areyousure.show{ display:inline-block; }
 
-    /* Runaway NO (we'll control by JS as fixed) */
+    /* Runaway NO (active after click) */
     #finalNo{
       will-change: transform, left, top, opacity;
     }
@@ -400,7 +403,6 @@
     }
     .gifbox img{ width:100%; display:block; }
 
-    /* Updated final title font (clean, old-money) */
     .finalTitle{
       margin-top: 18px;
       font-family: ui-serif, "New York", "Baskerville", "Palatino", "Times New Roman", serif;
@@ -410,26 +412,34 @@
       opacity: .92;
     }
 
-    /* Confetti */
+    /* Confetti (party popper from bottom up) */
     .confetti{
       position:fixed; inset:0;
       pointer-events:none;
       overflow:hidden;
-      z-index: 50;
+      z-index: 80;
       display:none;
     }
     .confetti.show{ display:block; }
+
     .confetti i{
       position:absolute;
-      width: 8px; height: 14px;
-      background: rgba(255,255,255,.8);
-      opacity:.9;
-      transform: translateY(-30px) rotate(0deg);
-      animation: fall 1.9s ease-in forwards;
+      opacity:.95;
       border-radius: 2px;
+
+      left: 50vw;
+      bottom: -20px;
+
+      transform: translate(0,0) rotate(0deg);
+      animation: pop 2.8s cubic-bezier(.12,.75,.25,1) forwards;
+      will-change: transform, opacity;
     }
-    @keyframes fall{
-      to { transform: translateY(110vh) rotate(360deg); opacity: 0.95; }
+
+    @keyframes pop{
+      0%   { transform: translate(0,0) rotate(0deg); opacity: .0; }
+      8%   { opacity: .95; }
+      60%  { transform: translate(var(--dx), calc(-1 * var(--dy))) rotate(540deg); opacity: .95; }
+      100% { transform: translate(calc(var(--dx) * 1.05), calc(-1 * var(--dy) * .55)) rotate(720deg); opacity: 0; }
     }
   </style>
 </head>
@@ -446,15 +456,12 @@
         <div class="hero">
           <div class="hero-inner">
 
-            <!-- Big rotating headline -->
             <div class="hero-hello-big">
               <span class="hero-hello-big-word" id="rotatingHello">Hola Kuo BaoPay</span>
             </div>
 
-            <!-- Small line -->
             <div class="hero-tagline">a little hello</div>
 
-            <!-- Start row -->
             <div class="hero-actions">
               <div class="start-gif" aria-label="start gif">
                 <img src="start.gif" alt="start gif">
@@ -470,6 +477,17 @@
       <section class="screen" id="screen-q1">
         <div class="qwrap">
           <div class="qbox">
+
+            <div class="heartline mini">
+              <span class="heart" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="#ff6fa3" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.8 4.6c-1.6-1.7-4.2-1.7-5.8 0L12 7.6l-3-3c-1.6-1.7-4.2-1.7-5.8 0-1.7 1.8-1.7 4.6 0 6.4L12 20l8.8-9c1.7-1.8 1.7-4.6 0-6.4z"/>
+                </svg>
+              </span>
+            </div>
+
             <div class="qindex">01</div>
             <h2 class="qtitle">Do you like spending time<br/>with me?</h2>
             <div class="qsub">be honest…</div>
@@ -490,6 +508,17 @@
       <section class="screen" id="screen-q2">
         <div class="qwrap">
           <div class="qbox">
+
+            <div class="heartline mini">
+              <span class="heart" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="#ff6fa3" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.8 4.6c-1.6-1.7-4.2-1.7-5.8 0L12 7.6l-3-3c-1.6-1.7-4.2-1.7-5.8 0-1.7 1.8-1.7 4.6 0 6.4L12 20l8.8-9c1.7-1.8 1.7-4.6 0-6.4z"/>
+                </svg>
+              </span>
+            </div>
+
             <div class="qindex">02</div>
             <h2 class="qtitle">Do you think about me<br/>when we’re apart?</h2>
             <div class="qsub">even a little?</div>
@@ -510,6 +539,17 @@
       <section class="screen" id="screen-q3">
         <div class="qwrap">
           <div class="qbox">
+
+            <div class="heartline mini">
+              <span class="heart" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="#ff6fa3" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.8 4.6c-1.6-1.7-4.2-1.7-5.8 0L12 7.6l-3-3c-1.6-1.7-4.2-1.7-5.8 0-1.7 1.8-1.7 4.6 0 6.4L12 20l8.8-9c1.7-1.8 1.7-4.6 0-6.4z"/>
+                </svg>
+              </span>
+            </div>
+
             <div class="qindex">03</div>
             <h2 class="qtitle">Do you smile when you see<br/>my name on your phone?</h2>
             <div class="qsub">because I smile when I see yours…</div>
@@ -552,7 +592,7 @@
             </h2>
             <div class="qsub">I’ve been waiting to ask you this…</div>
 
-            <div class="qrow" id="noArena">
+            <div class="qrow">
               <div class="choice primary" id="finalYes">YES, I’D LOVE TO ♡</div>
               <div class="choice secondary" id="finalNo">NO</div>
             </div>
@@ -569,7 +609,6 @@
         <div class="final">
           <div style="max-width:760px; padding: 0 14px;">
             <div style="font-size:28px; margin-bottom:10px;">
-              <!-- line-heart icon -->
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
                 stroke="#ff6fa3" stroke-width="1.6"
                 stroke-linecap="round" stroke-linejoin="round"
@@ -601,9 +640,9 @@
   </div>
 
 <script>
-  // ===== SVG LINE HEART (watermark) =====
+  // ===== LINE HEART SVG (used everywhere) =====
   const wm = document.getElementById("wmHearts");
-  const HEART_COUNT = 16;
+  const HEART_COUNT = 18;
 
   function heartSVG(opacity){
     return `
@@ -619,7 +658,7 @@
     wm.innerHTML = "";
     for(let i=0;i<HEART_COUNT;i++){
       const s = document.createElement("span");
-      const op = (0.08 + Math.random()*0.08).toFixed(2);
+      const op = (0.08 + Math.random()*0.10).toFixed(2);
       s.innerHTML = heartSVG(op);
 
       s.style.left = (Math.random()*100) + "vw";
@@ -665,6 +704,15 @@
     }else{
       document.body.classList.remove("hero-mode");
     }
+
+    // Reset runaway each time we enter Q4
+    if(id === "screen-q4"){
+      runawayEnabled = false;
+      finalNo.style.position = "relative";
+      finalNo.style.left = "";
+      finalNo.style.top  = "";
+      finalNo.style.zIndex = "";
+    }
   }
 
   document.getElementById("startBtn").addEventListener("click", () => show("screen-q1"));
@@ -672,14 +720,22 @@
     btn.addEventListener("click", () => show(btn.getAttribute("data-next")));
   });
 
-  // ===== Runaway NO + "ARE YOU SURE?" =====
+  // ===== Runaway NO (enabled ONLY after clicking NO) =====
   const finalNo = document.getElementById("finalNo");
   const areYouSure = document.getElementById("areYouSure");
+  let runawayEnabled = false;
 
-  // Make NO roam over full viewport (whole page), not just near YES
-  finalNo.style.position = "fixed";
-  finalNo.style.left = "70vw";
-  finalNo.style.top  = "60vh";
+  function enableRunaway(){
+    if(runawayEnabled) return;
+    runawayEnabled = true;
+
+    finalNo.style.position = "fixed";
+    finalNo.style.zIndex = "60";
+
+    const yesRect = document.getElementById("finalYes").getBoundingClientRect();
+    finalNo.style.left = (yesRect.right + 14) + "px";
+    finalNo.style.top  = (yesRect.top + 2) + "px";
+  }
 
   function moveNo(){
     const rect = document.documentElement.getBoundingClientRect(); // viewport
@@ -692,65 +748,80 @@
     finalNo.style.left = (Math.random() * maxX) + "px";
     finalNo.style.top  = (Math.random() * maxY) + "px";
 
-    // show angry line
     areYouSure.classList.add("show");
     setTimeout(() => areYouSure.classList.remove("show"), 850);
 
-    // extra playful effect: shrink + fade momentarily
     finalNo.classList.add("no-pop");
-    setTimeout(() => finalNo.classList.remove("no-pop"), 160);
+    setTimeout(() => finalNo.classList.remove("no-pop"), 170);
   }
 
-  // Only activate runaway when Q4 is visible
   function isOnQ4(){
     return document.getElementById("screen-q4").classList.contains("active");
   }
 
+  // click/touch NO starts runaway immediately
+  finalNo.addEventListener("click", (e) => {
+    if(!isOnQ4()) return;
+    e.preventDefault?.();
+    enableRunaway();
+    moveNo();
+  });
+
+  finalNo.addEventListener("touchstart", (e) => {
+    if(!isOnQ4()) return;
+    e.preventDefault?.();
+    enableRunaway();
+    moveNo();
+  }, { passive:false });
+
+  // after enabled: hovering near NO keeps it escaping (desktop)
   function tryMove(e){
     if(!isOnQ4()) return;
+    if(!runawayEnabled) return;
     if(e) e.preventDefault?.();
     moveNo();
   }
-
-  // Desktop hover + move
   finalNo.addEventListener("mouseenter", tryMove);
   finalNo.addEventListener("mousemove", tryMove);
 
-  // Mobile touch
-  finalNo.addEventListener("touchstart", tryMove, { passive:false });
+  window.addEventListener("resize", () => {
+    if(!isOnQ4()) return;
+    if(!runawayEnabled) return;
+    moveNo();
+  });
 
-  // Clicking NO still escapes
-  finalNo.addEventListener("click", tryMove);
-
-  // ===== Confetti celebration =====
+  // ===== Confetti: party popper (bottom up), slower =====
   const confetti = document.getElementById("confetti");
+
   function popConfetti(){
     confetti.innerHTML = "";
     confetti.classList.add("show");
+
     const colors = ["rgba(255,111,163,.95)","rgba(255,179,205,.92)","rgba(255,255,255,.85)"];
-    for(let i=0;i<120;i++){
+
+    for(let i=0;i<140;i++){
       const piece = document.createElement("i");
-      piece.style.left = (Math.random()*100) + "vw";
-      piece.style.top  = (-10 - Math.random()*30) + "px";
+
+      const dx = (Math.random()*2 - 1) * (180 + Math.random()*220);
+      const dy = (260 + Math.random()*420);
+
+      piece.style.setProperty("--dx", dx.toFixed(0) + "px");
+      piece.style.setProperty("--dy", dy.toFixed(0) + "px");
+
       piece.style.background = colors[Math.floor(Math.random()*colors.length)];
-      piece.style.width = (6 + Math.random()*6) + "px";
-      piece.style.height= (10 + Math.random()*14) + "px";
-      piece.style.animationDuration = (1.4 + Math.random()*1.6) + "s";
+      piece.style.width = (6 + Math.random()*7) + "px";
+      piece.style.height= (10 + Math.random()*16) + "px";
+      piece.style.animationDuration = (2.6 + Math.random()*0.8) + "s";
+
       confetti.appendChild(piece);
     }
-    setTimeout(() => confetti.classList.remove("show"), 2400);
+
+    setTimeout(() => confetti.classList.remove("show"), 3600);
   }
 
   document.getElementById("finalYes").addEventListener("click", () => {
     popConfetti();
     show("screen-final");
-  });
-
-  // Keep NO inside viewport on rotate/resize
-  window.addEventListener("resize", () => {
-    if(!isOnQ4()) return;
-    // nudge once to ensure it doesn't clip on new size
-    moveNo();
   });
 </script>
 </body>
