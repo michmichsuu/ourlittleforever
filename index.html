@@ -459,6 +459,85 @@
       .gifStart{ width:64px;height:64px; }
       .gifStart img{ width:64px;height:64px; }
     }
+    /* ===== Mobile Responsive Patch (paste at the end) ===== */
+
+/* iOS safe area + avoid weird scroll */
+html, body{
+  height: 100%;
+}
+body{
+  margin: 0;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Main wrapper: always centered, responsive padding */
+.wrap{
+  min-height: 100svh; /* better on mobile than 100vh */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: clamp(14px, 4vw, 28px);
+}
+
+/* Card: responsive width/height */
+.card{
+  width: min(920px, 92vw);
+  border-radius: clamp(18px, 4vw, 34px);
+  padding: clamp(18px, 4.8vw, 44px);
+}
+
+/* Titles: auto scale */
+.heroTitle, .qTitle, .finalTitle{
+  font-size: clamp(26px, 6.6vw, 54px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.subTitle, .qSub, .smallNote{
+  font-size: clamp(12px, 3.4vw, 16px);
+  line-height: 1.4;
+}
+
+/* Buttons: do not overflow */
+.btnRow{
+  display:flex;
+  gap: clamp(10px, 3vw, 18px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn{
+  min-width: min(280px, 72vw);
+  height: clamp(46px, 10.5vw, 56px);
+  font-size: clamp(13px, 3.6vw, 14px);
+}
+
+/* GIF area: responsive and centered */
+.gifbox{
+  width: min(360px, 72vw);
+  aspect-ratio: 1 / 1;
+  margin: clamp(14px, 4vw, 22px) auto;
+}
+.gifbox img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display:block;
+}
+
+/* Dots (pagination): keep visible on mobile */
+.dots{
+  margin-top: clamp(14px, 4vw, 18px);
+}
+
+/* On very small screens: tighter layout */
+@media (max-width: 380px){
+  .card{ padding: 16px; }
+  .btn{ min-width: 78vw; }
+}
   </style>
 </head>
 
@@ -888,5 +967,32 @@
     // hide NO wrapper initially
     $("noFixed").classList.remove("show");
   </script>
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+function moveNoAnywhereInsideCard(){
+  const card = document.querySelector('.card');
+  const noBtn = document.getElementById('noBtn'); // 你的 no 按鈕 id
+
+  const cardRect = card.getBoundingClientRect();
+  const btnRect  = noBtn.getBoundingClientRect();
+
+  // 安全邊界：避免壓到文字區（上方留空、下方留空）
+  const paddingTop = 140;   // 依你版面可微調（避免壓到標題）
+  const paddingBottom = 110; // 避免壓到 dots/底部字
+  const paddingSide = 18;
+
+  const minX = cardRect.left + paddingSide;
+  const maxX = cardRect.right - btnRect.width - paddingSide;
+
+  const minY = cardRect.top + paddingTop;
+  const maxY = cardRect.bottom - btnRect.height - paddingBottom;
+
+  const x = clamp(minX + Math.random() * (maxX - minX), minX, maxX);
+  const y = clamp(minY + Math.random() * (maxY - minY), minY, maxY);
+
+  noBtn.style.position = 'fixed';
+  noBtn.style.left = `${x}px`;
+  noBtn.style.top  = `${y}px`;
+}
 </body>
 </html>
