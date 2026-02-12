@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hello Kuo baopay</title>
+
+  <style>
+    :root{
+      --bg:#05060a;
+      --bg2:#090b12;
+      --text:#eef0f6;
+      --muted:rgba(238,240,246,.72);
+      --hairline:rgba(255,255,255,.10);
+      --pink:#ff6fa3;
+      --pink2:#ffb3cd;
+      --shadow: 0 24px 80px rgba(0,0,0,.55);
+      --radius: 26px;
+
+      /* old money + apple body */
+      --serif: ui-serif, "New York", "Iowan Old Style", "Palatino", "Baskerville", "Times New Roman", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+
+      /* homepage palette */
+      --paper:#fbfaf7;
+      --ink:#241a14;      /* deep brownish-black */
+      --ink2:rgba(36,26,20,.72);
+      --line:rgba(36,26,20,.12);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 900px at 70% -10%, rgba(255,111,163,.12), transparent 55%),
+        radial-gradient(900px 600px at 10% 10%, rgba(255,179,205,.08), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      font-family: var(--sans);
+      overflow:hidden;
+    }
+
+    /* subtle star speckles */
+    .stars:before{
+      content:"";
+      position:fixed; inset:0;
+      background-image:
+        radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+        radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 70px 70px, 110px 110px;
+      background-position: 0 0, 30px 60px;
+      opacity:.30;
+      pointer-events:none;
+    }
+
+    /* watermark hearts (global) */
+    .wm-hearts{
+      position:fixed; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 5;
+    }
+    .wm-hearts span{
+      position:absolute;
+      transform: translateY(110vh);
+      animation: drift 12s linear infinite;
+      filter: blur(.2px);
+    }
+    @keyframes drift{
+      0%   { transform: translateY(110vh) translateX(0) scale(1); opacity: .0; }
+      10%  { opacity: .28; }
+      50%  { opacity: .20; }
+      90%  { opacity: .10; }
+      100% { transform: translateY(-30vh) translateX(60px) scale(1.25); opacity: 0; }
+    }
+
+    .wrap{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 22px;
+      position:relative;
+      z-index:10;
+    }
+
+    .card{
+      width: min(980px, 96vw);
+      height: min(680px, 88vh);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      background: rgba(10,12,18,.58);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Top bar (default dark for question screens) */
+    .topbar{
+      position:absolute; inset:0 0 auto 0;
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--hairline);
+      background: linear-gradient(180deg, rgba(8,10,16,.88), rgba(8,10,16,.40));
+      z-index:20;
+      user-select:none;
+      color: rgba(255,255,255,.92);
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      font-weight:600;
+      letter-spacing:.2px;
+      opacity:.92;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      box-shadow: 0 10px 20px rgba(255,111,163,.25);
+    }
+    .top-right{
+      display:flex; gap:10px; align-items:center;
+      opacity:.85;
+      font-size:13px;
+    }
+    .pill{
+      border:1px solid var(--hairline);
+      border-radius:999px;
+      padding: 8px 12px;
+      background: rgba(255,255,255,.03);
+    }
+
+    /* Screens */
+    .screen{
+      position:absolute;
+      inset:64px 0 0 0;
+      padding: 34px 28px 22px;
+      display:none;
+      z-index:15;
+    }
+    .screen.active{ display:block; }
+
+    /* ---------- HERO (WHITE Apple-style) ---------- */
+    #screen-hero{
+      background: var(--paper);
+      color: var(--ink);
+    }
+    /* Make topbar light ONLY on hero */
+    body.hero-mode .topbar{
+      color: var(--ink);
+      border-bottom: 1px solid var(--line);
+      background: rgba(251,250,247,.78);
+    }
+    body.hero-mode .pill{
+      border: 1px solid var(--line);
+      background: rgba(36,26,20,.03);
+      color: var(--ink);
+    }
+    body.hero-mode .brand{ opacity:.95; }
+    body.hero-mode .dot{
+      box-shadow: 0 10px 20px rgba(255,111,163,.18);
+    }
+
+    /* Reduce watermark hearts visibility on white hero */
+    body.hero-mode .wm-hearts span{
+      color: rgba(255,111,163,.06) !important;
+    }
+
+    .hero{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:left;
+      padding: 12px 10px 46px;
+    }
+    .hero-inner{
+      width: min(860px, 96%);
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items:center;
+    }
+    @media (max-width: 760px){
+      .hero-inner{ grid-template-columns: 1fr; text-align:center; }
+      .hero-actions{ justify-content:center; }
+    }
+
+    .hello-rotator{
+      display:flex;
+      gap: 10px;
+      align-items:baseline;
+      margin-bottom: 14px;
+      font-size: 15px;
+      letter-spacing:.2px;
+      color: var(--ink2);
+    }
+    .rotating{
+      font-weight:800;
+      color: rgba(255,111,163,.95);
+      border-bottom: 1px solid rgba(255,111,163,.35);
+      padding-bottom: 2px;
+      min-width: 92px;
+      display:inline-block;
+      transition: opacity .18s ease;
+    }
+
+    .hero h1{
+      margin:0 0 12px;
+      font-family: var(--serif);
+      font-size: clamp(44px, 6vw, 66px);
+      line-height: 1.02;
+      letter-spacing: -0.7px;
+      font-weight: 900;
+    }
+    .hero h1 .pink{
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .hero p{
+      margin: 0 0 22px;
+      max-width: 640px;
+      color: var(--ink2);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap: 16px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:0;
+      padding: 14px 18px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight: 800;
+      letter-spacing:.18em;
+      text-transform: uppercase;
+      font-size: 12px;
+      transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      white-space:nowrap;
+    }
+    /* On hero: button looks Apple-clean */
+    body.hero-mode .btn.primary{
+      color:#ffffff;
+      background: linear-gradient(135deg, #2a1d16, #1b130f); /* deep brown-black */
+      box-shadow: 0 16px 36px rgba(36,26,20,.22);
+    }
+    body.hero-mode .btn.primary:active{ transform: scale(.985); }
+
+    /* Tom & Jerry gif beside button */
+    .start-gif{
+      width: 110px;
+      height: 110px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(36,26,20,.02);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .start-gif img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    /* ---------- QUESTIONS (dark) ---------- */
+    .qwrap{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding-bottom: 46px;
+      position:relative;
+      color: var(--text);
+    }
+    .qbox{
+      width: min(760px, 94vw);
+      padding: 18px 18px 0;
+    }
+    .qindex{
+      font-size: 12px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 16px;
+      user-select:none;
+    }
+    .qtitle{
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.12;
+      letter-spacing: -0.4px;
+      font-weight: 900;
+    }
+    .qsub{
+      margin-top: 10px;
+      color: rgba(255,255,255,.58);
+      font-size: 13px;
+      letter-spacing: .14em;
+      text-transform: lowercase;
+      user-select:none;
+    }
+    .qrow{
+      margin-top: 28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 22px;
+      position:relative;
+      height: 92px;
+    }
+    .choice{
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .choice.primary{
+      color:#0b0c10;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      box-shadow: 0 18px 38px rgba(255,111,163,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      min-width: 240px;
+      display:flex; gap:10px; align-items:center; justify-content:center;
+    }
+    .choice.primary:active{ transform: scale(.985); }
+    .choice.secondary{
+      color: rgba(255,255,255,.80);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.16);
+      min-width: 160px;
+    }
+
+    /* Progress dots */
+    .progress{
+      position:absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      display:flex; gap: 8px;
+      opacity:.9;
+      user-select:none;
+    }
+    .p{
+      width: 6px; height: 6px; border-radius: 999px;
+      background: rgba(255,255,255,.22);
+    }
+    .p.active{
+      width: 18px;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+    }
+
+    /* "ARE YOU SURE?" line near heart */
+    .heartline{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      margin-bottom: 18px;
+      min-height: 26px;
+      user-select:none;
+    }
+    .heart{
+      font-size: 18px;
+      filter: drop-shadow(0 12px 20px rgba(255,111,163,.22));
+    }
+    .areyousure{
+      font-size: 12px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+      display:none;
+    }
+    .areyousure.show{ display:inline-block; }
+
+    /* Runaway NO button */
+    #finalNo{
+      position:absolute;
+      left: 66%;
+      top: 18px;
+    }
+
+    /* FINAL */
+    .final{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding-bottom: 30px;
+      color: var(--text);
+    }
+    .final h2{
+      margin: 0 0 10px;
+      font-family: var(--serif);
+      font-size: clamp(52px, 6vw, 72px);
+      letter-spacing: -0.7px;
+      font-weight: 900;
+      color: rgba(255,255,255,.92);
+    }
+    .final p{
+      margin:0 0 22px;
+      color: rgba(255,255,255,.70);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .gifbox{
+      width: min(360px, 70vw);
+      margin: 18px auto 0;
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 22px 60px rgba(0,0,0,.55);
+    }
+    .gifbox img{ width:100%; display:block; }
+    .finalTitle{
+      margin-top:18px;
+      font-family:var(--serif);
+      font-size: 44px;
+      letter-spacing:-.4px;
+      opacity:.92;
+    }
+
+    /* Confetti */
+    .confetti{
+      position:fixed; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 50;
+      display:none;
+    }
+    .confetti.show{ display:block; }
+    .confetti i{
+      position:absolute;
+      width: 8px; height: 14px;
+      background: rgba(255,255,255,.8);
+      opacity:.9;
+      transform: translateY(-30px) rotate(0deg);
+      animation: fall 1.9s ease-in forwards;
+      border-radius: 2px;
+    }
+    @keyframes fall{
+      to { transform: translateY(110vh) rotate(360deg); opacity: 0.95; }
+    }
+  </style>
+</head>
+
+<body class="stars hero-mode">
+
+  <div class="wm-hearts" id="wmHearts"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <div class="wrap">
+    <div class="card">
+
+      <div class="topbar">
+        <div class="brand">
+          <span class="dot"></span>
+          <span>hello, Kuo baopay</span>
+        </div>
+        <div class="top-right">
+          <span class="pill">♡</span>
+          <span class="pill" id="tinyStatus">hola</span>
+        </div>
+      </div>
+
+      <!-- HERO (white) -->
+      <section class="screen active" id="screen-hero">
+        <div class="hero">
+          <div class="hero-inner">
+
+            <div>
+              <div class="hello-rotator">
+                <span class="rotating" id="rotatingHello">Hola</span>
+                <span>— <span style="color:var(--ink2)">hello</span> <span style="color:var(--ink); font-weight:900;">Kuo baopay</span></span>
+              </div>
+
+              <h1>
+                A little <span class="pink">hello</span>,<br/>
+                then a few questions.
+              </h1>
+
+              <p>
+                Minimal, clean, and only for you.<br/>
+                Tap “LET’S START” when you’re ready.
+              </p>
+
+              <div class="hero-actions">
+                <button class="btn primary" id="startBtn">LET’S START</button>
+
+                <!-- ✅ Put your Tom & Jerry GIF in repo root as start.gif -->
+                <div class="start-gif" aria-label="start gif">
+                  <img src="start.gif" alt="Tom and Jerry gif">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Q1 -->
+      <section class="screen" id="screen-q1">
+        <div class="qwrap">
+          <div class="qbox">
+            <div class="qindex">01</div>
+            <h2 class="qtitle">Do you like spending time<br/>with me?</h2>
+            <div class="qsub">be honest…</div>
+
+            <div class="qrow">
+              <div class="choice primary" data-next="screen-q2">YES ♡</div>
+              <div class="choice secondary" data-next="screen-q2">ABSOLUTELY</div>
+            </div>
+          </div>
+          <div class="progress">
+            <span class="p active"></span><span class="p"></span><span class="p"></span><span class="p"></span><span class="p"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q2 -->
+      <section class="screen" id="screen-q2">
+        <div class="qwrap">
+          <div class="qbox">
+            <div class="qindex">02</div>
+            <h2 class="qtitle">Do you think about me<br/>when we’re apart?</h2>
+            <div class="qsub">even a little?</div>
+
+            <div class="qrow">
+              <div class="choice primary" data-next="screen-q3">YES ♡</div>
+              <div class="choice secondary" data-next="screen-q3">ABSOLUTELY</div>
+            </div>
+          </div>
+          <div class="progress">
+            <span class="p"></span><span class="p active"></span><span class="p"></span><span class="p"></span><span class="p"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q3 -->
+      <section class="screen" id="screen-q3">
+        <div class="qwrap">
+          <div class="qbox">
+            <div class="qindex">03</div>
+            <h2 class="qtitle">Do you smile when you see<br/>my name on your phone?</h2>
+            <div class="qsub">because I smile when I see yours…</div>
+
+            <div class="qrow">
+              <div class="choice primary" data-next="screen-q4">YES ♡</div>
+              <div class="choice secondary" data-next="screen-q4">ABSOLUTELY</div>
+            </div>
+          </div>
+          <div class="progress">
+            <span class="p"></span><span class="p"></span><span class="p active"></span><span class="p"></span><span class="p"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q4 -->
+      <section class="screen" id="screen-q4">
+        <div class="qwrap">
+          <div class="qbox">
+            <div class="heartline">
+              <span class="heart">💗</span>
+              <span class="areyousure" id="areYouSure">ARE YOU SURE? 😡</span>
+            </div>
+
+            <div class="qindex">THE REAL QUESTION</div>
+            <h2 class="qtitle">
+              Will you be<br/>
+              <span style="background:linear-gradient(135deg,var(--pink),var(--pink2));
+                -webkit-background-clip:text;background-clip:text;color:transparent;">
+                my Valentine?
+              </span>
+            </h2>
+            <div class="qsub">I’ve been waiting to ask you this…</div>
+
+            <div class="qrow" id="noArena">
+              <div class="choice primary" id="finalYes">YES, I’D LOVE TO ♡</div>
+              <div class="choice secondary" id="finalNo">NO</div>
+            </div>
+          </div>
+
+          <div class="progress">
+            <span class="p"></span><span class="p"></span><span class="p"></span><span class="p active"></span><span class="p"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final -->
+      <section class="screen" id="screen-final">
+        <div class="final">
+          <div style="max-width:760px; padding: 0 14px;">
+            <div style="font-size:28px; margin-bottom:10px;">💗</div>
+            <h2>Yaaay!</h2>
+            <p>
+              I knew you’d say yes.<br/>
+              You just made me the happiest person in the world.
+            </p>
+
+            <div class="gifbox">
+              <img src="kiss.gif" alt="kissing gif" />
+            </div>
+
+            <div class="finalTitle">Happy Valentine’s and 18th</div>
+          </div>
+        </div>
+
+        <div class="progress">
+          <span class="p"></span><span class="p"></span><span class="p"></span><span class="p"></span><span class="p active"></span>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+<script>
+  // watermark hearts
+  const wm = document.getElementById("wmHearts");
+  const heartChars = ["♡","♥","💗","💖"];
+  const HEART_COUNT = 16;
+
+  function spawnWMHearts(){
+    wm.innerHTML = "";
+    for(let i=0;i<HEART_COUNT;i++){
+      const s = document.createElement("span");
+      s.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+      s.style.left = (Math.random()*100) + "vw";
+      s.style.animationDuration = (10 + Math.random()*10) + "s";
+      s.style.animationDelay = (-Math.random()*12) + "s";
+      s.style.fontSize = (22 + Math.random()*26) + "px";
+      s.style.color = `rgba(255,111,163,${0.06 + Math.random()*0.08})`;
+      wm.appendChild(s);
+    }
+  }
+  spawnWMHearts();
+
+  // hello rotator
+  const hellos = ["Hola","Bonjour","你好","こんにちは","哈囉"];
+  let hiIdx = 0;
+  const rotatingHello = document.getElementById("rotatingHello");
+  const tinyStatus = document.getElementById("tinyStatus");
+
+  setInterval(() => {
+    hiIdx = (hiIdx + 1) % hellos.length;
+    rotatingHello.style.opacity = 0;
+    setTimeout(() => {
+      rotatingHello.textContent = hellos[hiIdx];
+      rotatingHello.style.opacity = 1;
+      tinyStatus.textContent = hellos[hiIdx].toLowerCase();
+    }, 170);
+  }, 900);
+
+  // screens
+  const screens = Array.from(document.querySelectorAll(".screen"));
+  function show(id){
+    screens.forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    // toggle hero-mode for white topbar
+    if(id === "screen-hero"){
+      document.body.classList.add("hero-mode");
+    }else{
+      document.body.classList.remove("hero-mode");
+    }
+  }
+
+  document.getElementById("startBtn").addEventListener("click", () => show("screen-q1"));
+  document.querySelectorAll("[data-next]").forEach(btn => {
+    btn.addEventListener("click", () => show(btn.getAttribute("data-next")));
+  });
+
+  // runaway NO + are you sure
+  const finalNo = document.getElementById("finalNo");
+  const noArena = document.getElementById("noArena");
+  const areYouSure = document.getElementById("areYouSure");
+
+  function moveNo(){
+    const rect = noArena.getBoundingClientRect();
+    const b = finalNo.getBoundingClientRect();
+    const maxX = Math.max(0, rect.width - b.width);
+    const maxY = Math.max(0, rect.height - b.height);
+
+    finalNo.style.left = (Math.random() * maxX) + "px";
+    finalNo.style.top  = (Math.random() * maxY) + "px";
+
+    areYouSure.classList.add("show");
+    setTimeout(() => areYouSure.classList.remove("show"), 850);
+  }
+
+  finalNo.style.position = "absolute";
+  finalNo.style.left = "66%";
+  finalNo.style.top  = "18px";
+
+  finalNo.addEventListener("mouseenter", moveNo);
+  finalNo.addEventListener("mousemove", moveNo);
+  finalNo.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveNo();
+  }, { passive:false });
+  finalNo.addEventListener("click", moveNo);
+
+  // confetti + final
+  const confetti = document.getElementById("confetti");
+  function popConfetti(){
+    confetti.innerHTML = "";
+    confetti.classList.add("show");
+    const colors = ["rgba(255,111,163,.95)","rgba(255,179,205,.92)","rgba(255,255,255,.85)"];
+    for(let i=0;i<120;i++){
+      const piece = document.createElement("i");
+      piece.style.left = (Math.random()*100) + "vw";
+      piece.style.top  = (-10 - Math.random()*30) + "px";
+      piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+      piece.style.width = (6 + Math.random()*6) + "px";
+      piece.style.height= (10 + Math.random()*14) + "px";
+      piece.style.animationDuration = (1.4 + Math.random()*1.6) + "s";
+      confetti.appendChild(piece);
+    }
+    setTimeout(() => confetti.classList.remove("show"), 2400);
+  }
+
+  document.getElementById("finalYes").addEventListener("click", () => {
+    popConfetti();
+    show("screen-final");
+  });
+
+  window.addEventListener("resize", () => {
+    finalNo.style.left = "66%";
+    finalNo.style.top  = "18px";
+  });
+</script>
+</body>
+</html>
